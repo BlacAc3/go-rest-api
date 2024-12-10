@@ -1,4 +1,4 @@
-module github.com/blacac3/go-crud-api
+module github.com/blacac3/go-rest-api
 
 go 1.22.4
 

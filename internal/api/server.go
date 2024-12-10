@@ -3,7 +3,7 @@ package api
 import (
 	"log"
 	"net/http"
-    "github.com/blacac3/go-crud-api/internal/middleware"
+    "github.com/blacac3/go-rest-api/internal/middleware"
 
 )
 

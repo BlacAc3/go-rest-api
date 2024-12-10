@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/blacac3/go-crud-api/internal/models"
-	"github.com/blacac3/go-crud-api/internal/util"
+	"github.com/blacac3/go-rest-api/internal/models"
+	"github.com/blacac3/go-rest-api/internal/util"
 )
 
 

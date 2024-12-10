@@ -4,7 +4,7 @@ import (
     "gorm.io/driver/postgres"
     "gorm.io/gorm"
 	"gorm.io/gorm/logger"
-    "github.com/blacac3/go-crud-api/internal/models"
+    "github.com/blacac3/go-rest-api/internal/models"
 	"log"
 )
 

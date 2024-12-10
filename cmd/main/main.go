@@ -4,7 +4,7 @@ import (
 	// net/http"
 	"log"
 
-	"github.com/blacac3/go-crud-api/internal/api"
+	"github.com/blacac3/go-rest-api/internal/api"
 )
 
 func main() {
