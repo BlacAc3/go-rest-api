@@ -1,28 +1,35 @@
 package tests
 
 import (
-     "net/http"
-     "net/http/httptest"
-     "testing"
-     "github.com/blacac3/go-rest-api/internal/models"
-     "github.com/blacac3/go-rest-api/internal/api"
- )
+    "bytes"
+    "net/http"
+    "net/http/httptest"
+    "testing"
+    "encoding/json"
 
-var users = []models.User{
-    {FirstName: "Alice", Username: "aliceinthelookingglass", Email: "alice@example.com"},
-    {FirstName: "Bob", Username: "bobthebuilder", Email: "bob@example.com"},
-}
+    "github.com/blacac3/go-rest-api/internal/models"
+    "github.com/blacac3/go-rest-api/internal/api"
+    "github.com/stretchr/testify/assert"
+)
+
+var user1 = models.User{FirstName: "Alice", Username: "aliceinthelookingglass", Email: "alice@example.com"}
+var user2 =models.User{FirstName: "Bob", Username: "bobthebuilder", Email: "bob@example.com"}
+
 
 
 func TestRegisterUser(t *testing.T){
-    req, err:= http.NewRequest("POST", "/register", nil)
+    res := registerUser(t, user1)
+    assert.Equal(t, http.StatusCreated, res.Code, "Expected Status Code 201 Received")
+    assert.Contains(t, res.Body.String(), "aliceinthelookingglass", "Response Body does not contain username")
+}
+
+func registerUser(t *testing.T, user models.User) *httptest.ResponseRecorder{
+    jsonBody, err := json.Marshal(user)
+    req, err:= http.NewRequest("POST", "/register", bytes.NewBuffer(jsonBody))
     if err != nil {
         t.Fatalf("Could not Create Request")
     }
     res := httptest.NewRecorder()
     api.HandleRegisteration(res, req)
-
-    assert.Equal(t, http.StatusCreated, res.Code, "Expected Status Code 201 Received")
-    assert.Contains(t, res.Body.String(), "aliceinthelookingglass", "Response Body does not contain username")
-
+    return res
 }
