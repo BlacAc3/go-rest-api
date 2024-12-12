@@ -10,10 +10,10 @@ import (
 )
 
 const (
-    hashIteration uint32 = 2
     memoryUsage   uint32 = 64 * 1024 // in kilobytes
-    threads       uint8   = 4
-    outputLength  uint32    = 32
+    timeCost uint32 = 2
+    parallelism       uint8   = 4
+    keyLength  uint32    = 32
 )
 
 func generateSalt() []byte {
@@ -25,9 +25,10 @@ func generateSalt() []byte {
 
 func HashPassword(password string) string {
     salt := generateSalt()
-    hash := argon2.IDKey([]byte(password), salt, hashIteration, memoryUsage, threads, outputLength)
+    hash := argon2.IDKey([]byte(password), salt,timeCost, memoryUsage ,parallelism, keyLength)
     return fmt.Sprintf(
-        "%s$%s",
+        "$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s",
+        argon2.Version, memoryUsage, timeCost, parallelism,
         base64.RawStdEncoding.EncodeToString(salt),
         base64.RawStdEncoding.EncodeToString(hash),
     )
@@ -43,7 +44,7 @@ func VerifyPassword(password string, hashed string) bool {
     storedSalt, _ := base64.RawStdEncoding.DecodeString(parts[0])
     storedHash, _ := base64.RawStdEncoding.DecodeString(parts[1])
 
-    inputPasswordHash := argon2.IDKey([]byte(inputPassword), storedSalt, hashIteration, memoryUsage, threads, outputLength)
+    inputPasswordHash := argon2.IDKey([]byte(inputPassword), storedSalt,timeCost, memoryUsage,parallelism, keyLength)
     return string(inputPasswordHash) == string(storedHash)
 
 }
