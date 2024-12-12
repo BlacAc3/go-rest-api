@@ -36,13 +36,13 @@ func HashPassword(password string) string {
 
 func VerifyPassword(password string, hashed string) bool {
     parts := strings.Split(hashed, "$")
-    if len(parts) != 2 {
+    if len(parts) != 6 {
         return false
     }
 
     inputPassword := password
-    storedSalt, _ := base64.RawStdEncoding.DecodeString(parts[0])
-    storedHash, _ := base64.RawStdEncoding.DecodeString(parts[1])
+    storedSalt, _ := base64.RawStdEncoding.DecodeString(parts[4])
+    storedHash, _ := base64.RawStdEncoding.DecodeString(parts[5])
 
     inputPasswordHash := argon2.IDKey([]byte(inputPassword), storedSalt,timeCost, memoryUsage,parallelism, keyLength)
     return string(inputPasswordHash) == string(storedHash)
