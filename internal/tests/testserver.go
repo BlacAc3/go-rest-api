@@ -2,7 +2,6 @@ package tests
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -26,8 +25,6 @@ func SetupServer() *http.Server {
     if serverStatus == "" {
         db, _ = setupTestDB()
         server := api.NewAPIServer(port)
-        log.Println()
-        log.Println("📦📦Server started on port", port)
         go func() {
             server.Serve()
         }()
