@@ -28,7 +28,7 @@ func (s *APIServer) Serve(){
     
     // Assign protected routes
     authRouter := http.NewServeMux()
-    router.Handle("/", middleware.Authentication(authRouter))
+    // router.Handle("/", middleware.Authentication(authRouter))
 
     v1 := http.NewServeMux()
     v1.Handle("/v1/", http.StripPrefix("/v1", router))
