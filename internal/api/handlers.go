@@ -7,6 +7,7 @@ import (
 
 	"github.com/blacac3/go-rest-api/internal/models"
 	"github.com/blacac3/go-rest-api/internal/util"
+    "github.com/blacace3/go-rest-api/internal/database"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +15,7 @@ import (
 var messagePayload map[string]interface{} = make(map[string]interface{})
 
 func ChangeDB(db *gorm.DB){
-    DB = db
+    database.DB = db
 }
 
 func HandleHealthz(w http.ResponseWriter, r *http.Request){

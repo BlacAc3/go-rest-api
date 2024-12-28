@@ -1,88 +1,69 @@
 package util
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
-	"encoding/json"
-	"errors"
-	// "fmt"
-	"strings"
+
+	// "errors"
+	"fmt"
+	// "strings"
 	"time"
+    "log"
+
+    "github.com/blacac3/go-rest-api/internal/models"
+    "github.com/blacac3/go-rest-api/internal/database"
+    "github.com/golang-jwt/jwt/v4"
 )
 
 var secretKey = []byte("MySecretKey")
 
-type Header struct {
-    Alg string `json:"alg"`
-    Typ string `json:"typ"`
-}
-
-type Payload struct {
-    UserID int      `json:"user_id"`
-    Role string     `json:"role"`
-    Exp time.Time   `json:"exp"`
-}
-
-
-
-
-func EncodeBase64(data interface{}) (string,error){
-    jsonData, err := json.Marshal(data)
+func GenerateJWT(user models.User) (string, error){
+    claims := jwt.RegisteredClaims{
+		Issuer:    "auth.example.com",
+		Subject:   string(user.ID),
+		Audience:  []string{"go-rest-api"},
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 5)),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+	}
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    tokenString, err := token.SignedString(secretKey)
     if err != nil{
+        log.Printf("Error generating JWT: %v", err)
         return "", err
     }
-    return base64.RawURLEncoding.EncodeToString(jsonData), nil
+    return tokenString, nil
+
+
 }
 
 
-func DecodeBase64(encoded string, out interface{}) error{
-    data , err:= base64.RawURLEncoding.DecodeString(encoded)
+func VerifyJWT(tokenString string) (interface{}, error){
+    var user models.User 
+    // Verify Token
+    token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{},func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
+
     if err != nil {
-        return err
-    }
-    return json.Unmarshal(data, out)
-}
+		return nil, fmt.Errorf("failed to parse token: %v", err)
+	}
+
+    //Verify token Payload/Claims
+    if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+        if !claims.VerifyExpiresAt(time.Now(), true) {
+			return nil, fmt.Errorf("token is expired")
+		}
+		if !claims.VerifyIssuer("auth.example.com", true) {
+			return nil, fmt.Errorf("invalid issuer")
+		}
+		if !claims.VerifyAudience("go-rest-api", true) {
+			return nil, fmt.Errorf("invalid audience")
+		}
+
+		fmt.Println("Token is valid. Claims:", claims)
+        result := database.DB.Where("id = ?", claims.Subject).First(&user)
+		return result, nil
+	}
 
 
 
-func CreateSignature(header64, payload64 string) string{
-    h := hmac.New(sha256.New, secretKey)
-    h.Write([]byte(header64 + "." + payload64))
-    return base64.RawURLEncoding.EncodeToString(h.Sum(nil))
-}
-
-func GenerateJWT(headerStruct Header, payloadStruct Payload) (string, error){
-    header64, err := EncodeBase64(headerStruct)
-    payload64, err := EncodeBase64(payloadStruct)
-    if err != nil {
-        return "", err
-    }
-
-    signature:= CreateSignature(header64, payload64)
-    return header64 + "." + payload64 + "." + signature, nil
-}
-
-
-func VerifyJWT(token string) (interface{}, error){
-    parts := strings.Split(token, ".")
-    if len(parts) != 3 {
-        return nil, errors.New("Invalid JWT format") 
-    }
-
-    header64 := parts[0]
-    payload64 := parts[1]
-    payloadData :=&Payload{}
-    
-    receivedSignature, err := base64.RawURLEncoding.DecodeString(parts[2])
-    newSig, err := base64.RawURLEncoding.DecodeString(CreateSignature(header64, payload64))
-    if err != nil{
-        return nil, err
-    }
-
-    if hmac.Equal(newSig, receivedSignature) == false{
-        return nil, errors.New("Invalid JWT signature")
-    }
-    return DecodeBase64(payload64, payloadData), nil
-}
-    
+    return nil, fmt.Errorf("invalid token")
+} 
