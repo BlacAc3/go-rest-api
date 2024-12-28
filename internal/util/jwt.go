@@ -62,8 +62,5 @@ func VerifyJWT(tokenString string) (interface{}, error){
         result := database.DB.Where("id = ?", claims.Subject).First(&user)
 		return result, nil
 	}
-
-
-
     return nil, fmt.Errorf("invalid token")
 } 

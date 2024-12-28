@@ -9,6 +9,7 @@ type User struct {
     Username  string `json:"username" gorm:"unique;not null"`
     Email     string `json:"email" gorm:"unique;not null" validate:"required,email"`
 	Password  string `json:"password" gorm:"not null" validate:"required,min=6"`
+    Role      string `json:"role" gorm:"not null" default:"user"`
 }
 
 type UserLogin struct {

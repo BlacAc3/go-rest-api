@@ -13,9 +13,10 @@ import (
 
 
 var messagePayload map[string]interface{} = make(map[string]interface{})
+var DB = database.GetDB()
 
 func ChangeDB(db *gorm.DB){
-    database.DB = db
+    DB = db
 }
 
 func HandleHealthz(w http.ResponseWriter, r *http.Request){
