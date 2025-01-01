@@ -1,27 +1,30 @@
 package tests
 
 import (
-    "bytes"
-    "encoding/json"
-    "fmt"
-    "net/http"
-    "net/http/httptest"
-    "testing"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 
-    "github.com/blacac3/go-rest-api/internal/api"
-    "github.com/blacac3/go-rest-api/internal/models"
-    "github.com/stretchr/testify/assert"
+	"github.com/blacac3/go-rest-api/internal/api"
+	"github.com/blacac3/go-rest-api/internal/models"
+	// "github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 // Asignments
 // ------------------------
 var (
-    user1 = models.User{
+    User1 = models.User{
+        ID: "311",
         FirstName: "Alice", Surname: "Goldman", 
         Username: "aliceinthelookingglass", Email: "alice@example.com", 
         Password: "alice123",
     }
     user2 = models.User{
+        ID: "233",
         FirstName: "Bob", Surname: "Builder", 
         Username: "bobthebuilder", Email: "bob@example.com", 
         Password: "bob123",
@@ -43,19 +46,19 @@ func registerUser(t *testing.T, user models.User) *httptest.ResponseRecorder {
     if err != nil {
         t.Fatalf("Failed to Create Request for Registration Test ---> %v", err)
     }
-    res := httptest.NewRecorder()
-    api.HandleRegisteration(res, req)
+    router := api.InitRouter()
+    res := PerformRequest(router, req)
     return res
 }
 
-func loginUser(t *testing.T, user interface{}) *httptest.ResponseRecorder {
+func LoginUser(t *testing.T, user interface{}) *httptest.ResponseRecorder {
     jsonBody, err := json.Marshal(user)
     req, err := http.NewRequest("POST", baseUrl+"/login", bytes.NewBuffer(jsonBody))
     if err != nil {
         t.Fatalf("Failed to Create Request for Login Test ---> %v",err)
     }
-    res := httptest.NewRecorder()
-    api.HandleLogin(res, req)
+    router := api.InitRouter()
+    res := PerformRequest(router, req)
     return res
 }
 
@@ -68,7 +71,7 @@ func loginUser(t *testing.T, user interface{}) *httptest.ResponseRecorder {
 //
 func TestRegisterUser(t *testing.T) {
     SetupServer()
-    res := registerUser(t, user1)
+    res := registerUser(t, User1)
     assert.Equal(t, http.StatusCreated, res.Code, fmt.Sprintf("STATUS CODE:: Expected: 201, Got: %v", res.Code))
     assert.Contains(t, res.Body.String(), "aliceinthelookingglass", "Response Body does not contain username")
 }
@@ -77,16 +80,16 @@ func TestRegisterUser(t *testing.T) {
 
 func TestSuccessfulLogin(t *testing.T) {
     SetupServer()
-    res := loginUser(t, user1)
+    res := LoginUser(t, User1)
     assert.Equal(t, http.StatusOK, res.Code, fmt.Sprintf("STATUS CODE:: Expected: %v, Got: %v", http.StatusOK, res.Code))
-    assert.Contains(t, res.Body.String(), "aliceinthelookingglass", "Response Body does not contain username")
+    assert.Contains(t, res.Body.String(), "token", "Response Body does not contain a token")
 }
 
 
 func TestFailedLogin(t *testing.T) {
     SetupServer()
     user2.Password = "bob1234"
-    res := loginUser(t, user2)
+    res := LoginUser(t, user2)
     assert.Equal(t, http.StatusNotFound, res.Code, fmt.Sprintf("STATUS CODE:: Expected: %v, Got: %v", http.StatusNotFound, res.Code))
-    assert.Contains(t, res.Body.String(), "not found", "Response Body does not contain username")
+    assert.Contains(t, res.Body.String(), "error", "Response Body does not contain an Error")
 }

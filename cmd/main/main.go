@@ -5,13 +5,11 @@ import (
 	"log"
 
 	"github.com/blacac3/go-rest-api/internal/api"
-    "github.com/blacac3/go-rest-api/internal/database"
+    // "github.com/blacac3/go-rest-api/internal/database"
 
 )
 
 func main() {
-	database.ConnectToDB()
-
 	var port string = "8000"
 	server := api.NewAPIServer(port)
 

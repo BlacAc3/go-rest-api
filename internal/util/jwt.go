@@ -9,16 +9,16 @@ import (
     "log"
 
     "github.com/blacac3/go-rest-api/internal/models"
-    "github.com/blacac3/go-rest-api/internal/database"
     "github.com/golang-jwt/jwt/v4"
 )
+
 
 var secretKey = []byte("MySecretKey")
 
 func GenerateJWT(user models.User) (string, error){
     claims := jwt.RegisteredClaims{
 		Issuer:    "auth.example.com",
-		Subject:   string(user.ID),
+		Subject:   fmt.Sprint(user.ID),
 		Audience:  []string{"go-rest-api"},
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 5)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -36,7 +36,6 @@ func GenerateJWT(user models.User) (string, error){
 
 
 func VerifyJWT(tokenString string) (interface{}, error){
-    var user models.User 
     // Verify Token
     token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{},func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
@@ -58,9 +57,7 @@ func VerifyJWT(tokenString string) (interface{}, error){
 			return nil, fmt.Errorf("invalid audience")
 		}
 
-		fmt.Println("Token is valid. Claims:", claims)
-        result := database.DB.Where("id = ?", claims.Subject).First(&user)
-		return result, nil
+        return fmt.Sprint(claims.Subject), nil
 	}
     return nil, fmt.Errorf("invalid token")
 } 

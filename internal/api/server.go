@@ -3,8 +3,9 @@ package api
 import (
 	"log"
 	"net/http"
-    "github.com/blacac3/go-rest-api/internal/middleware"
 
+	"github.com/blacac3/go-rest-api/internal/middleware"
+	"github.com/gin-gonic/gin"
 )
 
 
@@ -17,31 +18,29 @@ func NewAPIServer(p string) *APIServer{
     return &APIServer{Port: p}
 }
 
+func InitRouter() *gin.Engine{
+    router:= gin.Default()
+    router.POST("/login", HandleLogin)
+    router.POST("/register", HandleRegisteration)
+
+    authGroup := router.Group("/")
+    authGroup.Use(middleware.Authentication())
+    {
+        authGroup.GET("/healthz", HandleHealthz)
+    }
+
+    // Assign Middlewares
+    return router
+
+}
+
 
 func (s *APIServer) Serve(){
-    router := http.NewServeMux()
-
-    //Assign free Routes
-    router.HandleFunc("POST /login", HandleLogin)
-    router.HandleFunc("POST /register", HandleRegisteration)
-    router.HandleFunc("/healthz", HandleHealthz)
-    
-    // Assign protected routes
-    authRouter := http.NewServeMux()
-    // router.Handle("/", middleware.Authentication(authRouter))
-
-    v1 := http.NewServeMux()
-    v1.Handle("/v1/", http.StripPrefix("/v1", router))
-    
-    // Assign Middlewares
-    applyMiddleware := middleware.CreateMiddlewareStack(
-        middleware.Logging,
-    )
-    
+    router := InitRouter()
     // Configure and start server
     server := http.Server{
         Addr: ":"+s.Port,
-        Handler: applyMiddleware(v1),
+        Handler: router,
     }
     log.Fatal(server.ListenAndServe())
 }

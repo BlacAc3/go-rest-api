@@ -1,19 +1,29 @@
 package util
-    
-import(
-    "net/http"
-    "encoding/json"
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func RespondWithJson(w http.ResponseWriter, statusCode int, payload interface{}){
+func RespondWithJson(c *gin.Context, statusCode int, payload interface{}){
     jsonData, err := json.Marshal(payload)
     if err != nil {
-        http.Error(w, "Unable to encode JSON", http.StatusInternalServerError)   
+        http.Error(c.Writer, "Unable to encode JSON", http.StatusInternalServerError)   
         return
     }
 
-
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(statusCode)
-    w.Write(jsonData)
+    c.JSON(statusCode, gin.H{"payload": string(jsonData)})
 }
+
+
+func Serialize(model interface{}) ([]byte, error) {
+    return json.Marshal(model)
+}
+
+
+func Deserialize(data []byte, model interface{}) error {
+    return json.Unmarshal(data, model)
+}
+

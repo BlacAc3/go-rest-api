@@ -1,17 +1,17 @@
 package util
 
 import (
-    "fmt"
 	"encoding/json"
-	"net/http"
+	"fmt"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 var validate = validator.New()
 
 
-func ValidateRequest(r http.Request, model interface{}) error{
-    decoder := json.NewDecoder(r.Body)
+func ValidateRequest(c *gin.Context, model interface{}) error{
+    decoder := json.NewDecoder(c.Request.Body)
     if err := decoder.Decode(model); err != nil {
         return fmt.Errorf("%v", err)
     }
@@ -19,7 +19,7 @@ func ValidateRequest(r http.Request, model interface{}) error{
     if err:= validateStruct(model); err != nil{
         return fmt.Errorf("%v", err)
     }
-    defer r.Body.Close()
+    defer c.Request.Body.Close()
 
     return nil
 }
