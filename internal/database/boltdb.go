@@ -19,33 +19,34 @@ var(
 )
 
 
-func getDBPath(testmode bool) (string, error){
-    homeDir, err := os.UserHomeDir()
-    if err != nil {
-        return "", fmt.Errorf("An Error occured: %v",err)
-    }
-    var dbPath string
-    if testmode{
-        dbPath = filepath.Join(homeDir, ProjectName, testDBName)
-    }else{
-        dbPath = filepath.Join(homeDir, ProjectName, DBName)
-    }
-
-    projectDir := filepath.Dir(dbPath)
-    if err := os.MkdirAll(projectDir, os.ModePerm); err != nil {
-		return "", fmt.Errorf("failed to create project directory: %v", err)
+func FindProjectRoot(marker string) (string, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
 	}
-    return dbPath, nil
+
+	for {
+		if _, err := os.Stat(filepath.Join(cwd, marker)); err == nil {
+			return cwd, nil
+		}
+
+		parent := filepath.Dir(cwd)
+		if parent == cwd { // Reached root of filesystem
+			break
+		}
+		cwd = parent
+	}
+
+	return "", fmt.Errorf("project root with marker %q not found", marker)
 }
 
 
 
 func OpenBoltDB() *bolt.DB{
-    workingDir, err := os.Getwd()
+    workingDir, err := FindProjectRoot("go.mod")
     if err != nil {
         return nil
     }
-    fmt.Println("Working Directory is: ", workingDir)
     if Test_Mode{
         boltDB, err := bolt.Open(fmt.Sprintf("%v/%v", workingDir, testDBName), 0600, &bolt.Options{Timeout: 1 * time.Second})
         if err != nil {
@@ -83,7 +84,7 @@ func CreateBoltBucket(name string) error{
 }
 
 
-func UpdateBoltBucket(name string, key string, value []byte) error{
+func UpdateBoltBucket(bucketName string, key string, value []byte) error{
     db := OpenBoltDB()
     if db == nil {
         return fmt.Errorf("An Error occured while opening the database")
@@ -92,7 +93,7 @@ func UpdateBoltBucket(name string, key string, value []byte) error{
     }
 
     error := db.Update(func(tx *bolt.Tx) error {
-        b := tx.Bucket([]byte(name))
+        b := tx.Bucket([]byte(bucketName))
         if b == nil {
             return nil
         }

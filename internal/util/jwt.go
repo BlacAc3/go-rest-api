@@ -3,13 +3,15 @@ package util
 import (
 
 	// "errors"
+    "net/http"
 	"fmt"
-	// "strings"
+	"strings"
+	"log"
 	"time"
-    "log"
 
-    "github.com/blacac3/go-rest-api/internal/models"
-    "github.com/golang-jwt/jwt/v4"
+	"github.com/blacac3/go-rest-api/internal/models"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 
@@ -35,29 +37,43 @@ func GenerateJWT(user models.User) (string, error){
 }
 
 
-func VerifyJWT(tokenString string) (interface{}, error){
+func VerifyJWT(tokenString string) (string, error){
     // Verify Token
     token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{},func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
     if err != nil {
-		return nil, fmt.Errorf("failed to parse token: %v", err)
+		return "", fmt.Errorf("failed to parse token: %v", err)
 	}
 
     //Verify token Payload/Claims
     if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
         if !claims.VerifyExpiresAt(time.Now(), true) {
-			return nil, fmt.Errorf("token is expired")
+			return "", fmt.Errorf("token is expired")
 		}
 		if !claims.VerifyIssuer("auth.example.com", true) {
-			return nil, fmt.Errorf("invalid issuer")
+			return "", fmt.Errorf("invalid issuer")
 		}
 		if !claims.VerifyAudience("go-rest-api", true) {
-			return nil, fmt.Errorf("invalid audience")
+			return "", fmt.Errorf("invalid audience")
 		}
 
         return fmt.Sprint(claims.Subject), nil
 	}
-    return nil, fmt.Errorf("invalid token")
+    return "", fmt.Errorf("invalid token")
 } 
+
+
+func GetJWT(c *gin.Context) string{
+    authHeader := c.GetHeader("Authorization")
+    if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer "){
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        c.Abort()
+        log.Println("Authentication Failed: No Authorization Header")
+        return ""
+    }
+    return strings.TrimPrefix(authHeader, "Bearer ")
+
+
+}

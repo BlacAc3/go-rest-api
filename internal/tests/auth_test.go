@@ -19,7 +19,6 @@ import (
 )
 
 var user3 = models.User{
-    ID: "12233",
     FirstName: "Charlie", Surname: "Chaplin", 
     Username: "charliechaplin", Email: "charlie@example.com", 
     Password: "charlie123",

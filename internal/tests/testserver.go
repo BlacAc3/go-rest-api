@@ -22,7 +22,7 @@ var (
 
 // Start Test Server
 func SetupServer() *http.Server {
-    gin.SetMode(gin.TestMode)
+    gin.SetMode(gin.ReleaseMode)
     database.Test_Mode = true
     if serverStatus == "" {
         server := api.NewAPIServer(port)

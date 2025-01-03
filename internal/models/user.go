@@ -1,15 +1,28 @@
 package models
 
-// import "gorm.io/gorm"
+import (
+    "github.com/google/uuid"
+    "time"
+)
 
 type User struct {
-    ID        string `json:"id" validate:"required"`
-	FirstName string `json:"firstname" validate:"required"`
-    Surname   string `json:"surname" validate:"required"`
-    Username  string `json:"username"`
-    Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required,min=6"`
-    Role      string `json:"role"`
+    ID        string    `json:"id"`
+	FirstName string    `json:"firstname" validate:"required"`
+    Surname   string    `json:"surname" validate:"required"`
+    Username  string    `json:"username"`
+    Email     string    `json:"email" validate:"required,email"`
+	Password  string    `json:"password" validate:"required,min=6"`
+    IsAdmin   bool      `json:"is_admin"`
+    CreatedAt time.Time `json:"created_at"`
+    UpdatedAt time.Time `json:"updated_at"`
+}
+
+func (u *User) AddDefaults() {
+    u.ID = uuid.New().String()
+    u.IsAdmin = false
+    u.CreatedAt = time.Now()
+    u.UpdatedAt = time.Now()
+
 }
 
 type UserLogin struct {

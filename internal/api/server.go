@@ -20,13 +20,14 @@ func NewAPIServer(p string) *APIServer{
 
 func InitRouter() *gin.Engine{
     router:= gin.Default()
-    router.POST("/login", HandleLogin)
-    router.POST("/register", HandleRegisteration)
+    router.POST("auth/login", HandleLogin)
+    router.POST("auth/register", HandleRegisteration)
 
     authGroup := router.Group("/")
     authGroup.Use(middleware.Authentication())
     {
         authGroup.GET("/healthz", HandleHealthz)
+        authGroup.GET("files/upload", HandleFileUpload)
     }
 
     // Assign Middlewares
@@ -36,6 +37,7 @@ func InitRouter() *gin.Engine{
 
 
 func (s *APIServer) Serve(){
+    gin.SetMode(gin.ReleaseMode)
     router := InitRouter()
     // Configure and start server
     server := http.Server{

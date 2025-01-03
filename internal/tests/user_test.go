@@ -18,13 +18,11 @@ import (
 // ------------------------
 var (
     User1 = models.User{
-        ID: "311",
         FirstName: "Alice", Surname: "Goldman", 
         Username: "aliceinthelookingglass", Email: "alice@example.com", 
         Password: "alice123",
     }
     user2 = models.User{
-        ID: "233",
         FirstName: "Bob", Surname: "Builder", 
         Username: "bobthebuilder", Email: "bob@example.com", 
         Password: "bob123",

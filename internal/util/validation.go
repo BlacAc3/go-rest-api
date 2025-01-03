@@ -16,15 +16,10 @@ func ValidateRequest(c *gin.Context, model interface{}) error{
         return fmt.Errorf("%v", err)
     }
 
-    if err:= validateStruct(model); err != nil{
+    if err:= validate.Struct(model); err != nil{
         return fmt.Errorf("%v", err)
     }
     defer c.Request.Body.Close()
 
     return nil
-}
-
-func validateStruct(s interface{}) error {
-    return validate.Struct(s)
-
 }
