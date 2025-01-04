@@ -28,11 +28,11 @@ func TestJWT(t *testing.T) {
     SetupServer()
     router := api.InitRouter()
 
-    var result map[string]interface{}
     registerUser(t, user3)
     resp := LoginUser(t, user3)
     response:=resp.Body.String()
         
+    var result map[string]interface{}
     err := json.Unmarshal([]byte(response), &result)
     if err != nil{
         t.Errorf("Parse Error: %v", err)

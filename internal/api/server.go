@@ -27,7 +27,8 @@ func InitRouter() *gin.Engine{
     authGroup.Use(middleware.Authentication())
     {
         authGroup.GET("/healthz", HandleHealthz)
-        authGroup.GET("files/upload", HandleFileUpload)
+        authGroup.POST("/files/upload", HandleFileUpload)
+        authGroup.GET("/files/:fileID", HandleFileDownload)
     }
 
     // Assign Middlewares

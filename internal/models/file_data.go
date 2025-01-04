@@ -9,6 +9,7 @@ import(
 type File struct{
     ID              string      `json:"id"`
     UserID          string      `json:"user_id"`
+    Filename        string      `json:"filename"`
     Type            string      `json:"type"`
     EncryptedData   string      `json:"encrypted_data"`
     Tags            []string    `json:"tags"`

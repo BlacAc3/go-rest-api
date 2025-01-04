@@ -40,7 +40,7 @@ var (
 // ----------------------------
 func registerUser(t *testing.T, user models.User) *httptest.ResponseRecorder {
     jsonBody, err := json.Marshal(user)
-    req, err := http.NewRequest("POST", baseUrl+"/register", bytes.NewBuffer(jsonBody))
+    req, err := http.NewRequest("POST", baseUrl+"/auth/register", bytes.NewBuffer(jsonBody))
     if err != nil {
         t.Fatalf("Failed to Create Request for Registration Test ---> %v", err)
     }
@@ -51,7 +51,7 @@ func registerUser(t *testing.T, user models.User) *httptest.ResponseRecorder {
 
 func LoginUser(t *testing.T, user interface{}) *httptest.ResponseRecorder {
     jsonBody, err := json.Marshal(user)
-    req, err := http.NewRequest("POST", baseUrl+"/login", bytes.NewBuffer(jsonBody))
+    req, err := http.NewRequest("POST", baseUrl+"/auth/login", bytes.NewBuffer(jsonBody))
     if err != nil {
         t.Fatalf("Failed to Create Request for Login Test ---> %v",err)
     }

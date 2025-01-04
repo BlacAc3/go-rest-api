@@ -67,7 +67,7 @@ func HandleLogin(c *gin.Context){
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while generating JWT"})
         return
     }else{
-        c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
+        c.JSON(http.StatusOK, gin.H{"message":"Login successful", "token": string(token)})
     }
     return
 }
@@ -122,6 +122,7 @@ func HandleFileUpload(c *gin.Context){
     }
 
     fileModel := models.File{}
+    fileModel.Filename = header.Filename
     fileModel.Type = header.Header.Get("Content-Type")
     fileModel.EncryptedData, _ = util.EncryptFile(fileData)
     fileModel.AddDefaults()
@@ -135,9 +136,13 @@ func HandleFileUpload(c *gin.Context){
     }
     database.CreateBoltBucket(files_collection_name)
     database.UpdateBoltBucket(files_collection_name, fileModel.ID, fileModelBytes)
-    UpdateIndex(fileModel)
+    err=UpdateIndex(fileModel)
+    if err!=nil{
+        c.JSON(http.StatusInternalServerError, gin.H{"error":"updating index"})
+    }
 
-    c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully!", "user": fileModel.UserID})
+
+    c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully!", "fileID": fileModel.ID, "filename":fileModel.Filename})
     return
 }
 
@@ -168,4 +173,27 @@ func UpdateIndex(fileModel models.File)error{
 }
 
 
+func HandleFileDownload(c *gin.Context){
+    var downloadFileModel models.File
+    fileID := c.Param("fileID")
+    fileModelBytes, err := database.GetBoltBucket(files_collection_name, fileID)
+    if err != nil{
+        c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
+        return
+    }
+    json.Unmarshal(fileModelBytes, &downloadFileModel)
+    
+    downloadFileData, err := util.DecryptFile(downloadFileModel.EncryptedData)
+    if err!=nil{
+        log.Println(err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while downloading file"})
+        return
+    }
+    c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", downloadFileModel.Filename))
+	c.Header("Content-Type", downloadFileModel.Type)
+	c.Header("Content-Length", fmt.Sprintf("%d", len(downloadFileData)))
 
+	// Send the decrypted file data to the frontend
+	c.Data(http.StatusOK, downloadFileModel.Type, downloadFileData)
+    return
+}

@@ -17,13 +17,3 @@ func RespondWithJson(c *gin.Context, statusCode int, payload interface{}){
     c.JSON(statusCode, gin.H{"payload": string(jsonData)})
 }
 
-
-func Serialize(model interface{}) ([]byte, error) {
-    return json.Marshal(model)
-}
-
-
-func Deserialize(data []byte, model interface{}) error {
-    return json.Unmarshal(data, model)
-}
-
