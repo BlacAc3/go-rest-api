@@ -50,7 +50,7 @@ func HandleLogin(c *gin.Context){
         c.JSON(http.StatusBadRequest, gin.H{"error": "Bad Request"})
         return
     }
-    userInfo, err := database.GetBoltBucket(users_collection_name, request.Email)
+    userInfo, err := database.GetBoltBucket(users_collection_name, models.GenerateUUID(request.Email))
     if err != nil{
         log.Print(err)
         c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -88,8 +88,8 @@ func HandleRegisteration(c *gin.Context){
         return
     }
     database.CreateBoltBucket(users_collection_name)
-    if err := database.UpdateBoltBucket(users_collection_name, user.Email, userBytes); err != nil{
-        c.JSON(http.StatusNotFound, gin.H{"error": "Unable to register user"})
+    if err := database.UpdateBoltBucket(users_collection_name, user.ID, userBytes); err != nil{
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to register user"})
         return
     }
 
@@ -136,7 +136,7 @@ func HandleFileUpload(c *gin.Context){
     }
     database.CreateBoltBucket(files_collection_name)
     database.UpdateBoltBucket(files_collection_name, fileModel.ID, fileModelBytes)
-    err=UpdateIndex(fileModel)
+    err=UpdateIndex(fileModel) //Indexing files to UserId
     if err!=nil{
         c.JSON(http.StatusInternalServerError, gin.H{"error":"updating index"})
     }
@@ -175,6 +175,10 @@ func UpdateIndex(fileModel models.File)error{
 
 func HandleFileDownload(c *gin.Context){
     var downloadFileModel models.File
+    // requestUserID, _:=util.VerifyJWT(util.GetJWT(c))
+    // TODO: Create an Encryption Function to encrypt the email to a unique id to be stored in the db keyw
+
+    
     fileID := c.Param("fileID")
     fileModelBytes, err := database.GetBoltBucket(files_collection_name, fileID)
     if err != nil{

@@ -65,7 +65,7 @@ func OpenBoltDB() *bolt.DB{
 }
 
 
-func CreateBoltBucket(name string) error{
+func CreateBoltBucket(bucketName string) error{
     db := OpenBoltDB()
     if db == nil {
         return fmt.Errorf("An Error occured while opening the database")
@@ -74,7 +74,7 @@ func CreateBoltBucket(name string) error{
     }
 
     error := db.Update(func(tx *bolt.Tx) error {
-        _, err := tx.CreateBucketIfNotExists([]byte(name))
+        _, err := tx.CreateBucketIfNotExists([]byte(bucketName))
         if err != nil {
             return err
         }
@@ -103,22 +103,22 @@ func UpdateBoltBucket(bucketName string, key string, value []byte) error{
 }
 
 
-func GetBoltBucket(name string, key string) ([]byte ,error){
+func GetBoltBucket(bucketName string, key string) ([]byte ,error){
     db := OpenBoltDB()
     if db == nil {
-        return nil, fmt.Errorf("An Error occured while getting the bucket: %v", name)
+        return nil, fmt.Errorf("An Error occured while getting the bucket: %v", bucketName)
     }else{
         defer db.Close()
     }
     var data string
     err := db.View(func(tx *bolt.Tx) error {
-        b := tx.Bucket([]byte(name))
+        b := tx.Bucket([]byte(bucketName))
         if b == nil {
-            return fmt.Errorf("An error occured while getting the bucket: %v", name)
+            return fmt.Errorf("An error occured while getting the bucket: %v", bucketName)
         }
         data = string(b.Get([]byte(key)))
         if data == ""{
-            return fmt.Errorf("User not Found!")
+            return fmt.Errorf("User Does not Exist!")
         }
         return nil
     })

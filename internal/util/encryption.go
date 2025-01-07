@@ -1,12 +1,12 @@
 package util
 
 import (
-    "crypto/rand"
-    "encoding/base64"
-    "fmt"
-    "strings"
+	"crypto/rand"
+	"encoding/base64"
+	"fmt"
+	"strings"
 
-    "golang.org/x/crypto/argon2"
+	"golang.org/x/crypto/argon2"
 )
 
 const (
@@ -48,3 +48,6 @@ func VerifyPassword(password string, hashed string) bool {
     return string(inputPasswordHash) == string(storedHash)
 
 }
+
+
+
