@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 
@@ -17,3 +18,14 @@ func RespondWithJson(c *gin.Context, statusCode int, payload interface{}){
     c.JSON(statusCode, gin.H{"payload": string(jsonData)})
 }
 
+// prettifyJSON takes an object and returns its prettified JSON string
+func prettifyJSON(data interface{}) (string, error) {
+	buffer := &bytes.Buffer{}
+	encoder := json.NewEncoder(buffer)
+	encoder.SetIndent("", "  ") // Set indentation for prettifying
+	err := encoder.Encode(data)
+	if err != nil {
+		return "", err
+	}
+	return buffer.String(), nil
+}

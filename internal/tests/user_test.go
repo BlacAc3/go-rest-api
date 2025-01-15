@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/blacac3/go-rest-api/internal/api"
 	"github.com/blacac3/go-rest-api/internal/models"
 	// "github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -44,7 +43,7 @@ func registerUser(t *testing.T, user models.User) *httptest.ResponseRecorder {
     if err != nil {
         t.Fatalf("Failed to Create Request for Registration Test ---> %v", err)
     }
-    router := api.InitRouter()
+    router := GetRouter()
     res := PerformRequest(router, req)
     return res
 }
@@ -55,7 +54,7 @@ func LoginUser(t *testing.T, user interface{}) *httptest.ResponseRecorder {
     if err != nil {
         t.Fatalf("Failed to Create Request for Login Test ---> %v",err)
     }
-    router := api.InitRouter()
+    router := GetRouter()
     res := PerformRequest(router, req)
     return res
 }
@@ -78,6 +77,7 @@ func TestRegisterUser(t *testing.T) {
 
 func TestSuccessfulLogin(t *testing.T) {
     SetupServer()
+    registerUser(t, User1)
     res := LoginUser(t, User1)
     assert.Equal(t, http.StatusOK, res.Code, fmt.Sprintf("STATUS CODE:: Expected: %v, Got: %v", http.StatusOK, res.Code))
     assert.Contains(t, res.Body.String(), "token", "Response Body does not contain a token")

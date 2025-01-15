@@ -13,7 +13,7 @@ import (
 var( 
     ProjectName = "go-rest-api"
     DBName string = "bolt_database.db"
-    testDBName string = "test_bolt_database.db"
+    TestDBName string = "test_bolt_database.db"
     Test_Mode bool = false
 
 )
@@ -48,7 +48,7 @@ func OpenBoltDB() *bolt.DB{
         return nil
     }
     if Test_Mode{
-        boltDB, err := bolt.Open(fmt.Sprintf("%v/%v", workingDir, testDBName), 0600, &bolt.Options{Timeout: 1 * time.Second})
+        boltDB, err := bolt.Open(fmt.Sprintf("%v/%v", workingDir, TestDBName), 0600, &bolt.Options{Timeout: 1 * time.Second})
         if err != nil {
             log.Printf("Unable to open a Bolt DataBase:%v \n Found Error: %v", DBName, err)
             return nil

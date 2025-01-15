@@ -10,8 +10,8 @@ import (
 	// "net/http/httptest"
 	"testing"
 
-	"github.com/blacac3/go-rest-api/internal/api"
 	"github.com/blacac3/go-rest-api/internal/models"
+
 	// "github.com/gin-gonic/gin"
 
 	// "github.com/blacac3/go-rest-api/internal/util"
@@ -26,7 +26,7 @@ var user3 = models.User{
 
 func TestJWT(t *testing.T) {
     SetupServer()
-    router := api.InitRouter()
+    router := GetRouter()
 
     registerUser(t, user3)
     resp := LoginUser(t, user3)

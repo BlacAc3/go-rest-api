@@ -25,3 +25,20 @@ func (f *File) AddDefaults() {
 
 }
 
+type Folder struct {
+    ID              string      `json:"id"`
+    Name            string      `json:"name"`
+    Type            string      `json:"type"`
+    ParentFolderID  string      `json:"parent_folder_id"`
+    Files           []File      `json:"files"`
+    CreatedAt       time.Time   `json:"created_at"`
+    UpdatedAt       time.Time   `json:"updated_at"`
+}
+
+func (f *Folder) AddDefaults() {
+    f.ID = uuid.New().String()
+    f.Type = "folder"
+    f.CreatedAt = time.Now()
+    f.UpdatedAt = time.Now()
+}
+

@@ -11,7 +11,8 @@ import (
 
 func main() {
 	var port string = "8000"
-	server := api.NewAPIServer(port)
+	// server := api.NewAPIServer(port)
+    server := &api.APIServer{Port: port}
 
     log.Println()
     log.Println("📦📦Server started on port", port)

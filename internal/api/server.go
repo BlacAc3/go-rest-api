@@ -1,11 +1,11 @@
 package api
 
 import (
-	"log"
-	"net/http"
+    "log"
+    "net/http"
 
-	"github.com/blacac3/go-rest-api/internal/middleware"
-	"github.com/gin-gonic/gin"
+    "github.com/blacac3/go-rest-api/internal/middleware"
+    "github.com/gin-gonic/gin"
 )
 
 
@@ -14,12 +14,9 @@ type APIServer struct{
 
 }
 
-func NewAPIServer(p string) *APIServer{
-    return &APIServer{Port: p}
-}
 
-func InitRouter() *gin.Engine{
-    router:= gin.Default()
+
+func InitRouter(router *gin.Engine) {
     router.POST("auth/login", HandleLogin)
     router.POST("auth/register", HandleRegisteration)
 
@@ -29,17 +26,15 @@ func InitRouter() *gin.Engine{
         authGroup.GET("/healthz", HandleHealthz)
         authGroup.POST("/files/upload", HandleFileUpload)
         authGroup.GET("/files/:fileID", HandleFileDownload)
+        authGroup.GET("/files", HandleFilesRetrieval)
     }
-
-    // Assign Middlewares
-    return router
 
 }
 
 
 func (s *APIServer) Serve(){
-    gin.SetMode(gin.ReleaseMode)
-    router := InitRouter()
+    router := gin.Default()
+    InitRouter(router)
     // Configure and start server
     server := http.Server{
         Addr: ":"+s.Port,
